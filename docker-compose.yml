@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  influxdb:
+    container_name: nussknacker_influxdb
+    hostname: influxdb
+    image: influxdb:${INFLUXDB_VERSION-1.8.10}
+    ports:
+      - "3086:8086"
+    environment:
+      INFLUXDB_DB: esp
+      INFLUXDB_DATA_QUERY_LOG_ENABLED: "false"
+      INFLUXDB_HTTP_LOG_ENABLED: "false"
+    volumes:
+      - storage_influxdb:/var/lib/influxdb
+
+  grafana:
+    container_name: nussknacker_grafana
+    image: grafana/grafana:${GRAFANA_VERSION-8.4.2}
+    volumes:
+      - ./grafana:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s:/grafana
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+    depends_on:
+      - influxdb
+
+  nginx:
+    container_name: nussknacker_nginx
+    image: nginx:${NGINX_VERSION-1.17.6}
+    ports:
+      - "${NGINX_PORT-8081}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/additional:/etc/nginx/additional
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 6
+
+  externalservices:
+    container_name: nussknacker_externalservices
+    build: externalservices
+    hostname: externalservices
+    ports:
+      - "5000:5000"
+
+  designer:
+    container_name: nussknacker_designer
+    image: ${NUSSKNACKER_IMAGE-touk/nussknacker}:${NUSSKNACKER_VERSION-staging-latest} #change to 1.6.1
+    ports:
+      - "3081:8080"
+      - "3181:8181"  
+    environment:
+      #multiple, comma separated, config files can be used. They will be merged in order, via HOCON fallback mechanism
+      #https://github.com/lightbend/config/blob/master/HOCON.md#config-object-merging-and-file-merging
+      CONFIG_FILE: ${NUSSKNACKER_CONFIG_FILE-/opt/nussknacker/conf/application.conf,/opt/nussknacker/conf/nussknacker.conf}
+      JDK_JAVA_OPTIONS: -Xmx256M
+      DEFAULT_SCENARIO_TYPE: request-response-embedded
+      INFLUXDB_URL: http://influxdb:8086
+      OPENAPI_SERVICE_URL: http://externalservices:5000
+      USAGE_REPORTS_FINGERPRINT: "credit-scoring-blog-example"
+    volumes:
+      - storage_designer:/opt/nussknacker/storage
+      - ./nussknacker/nussknacker.conf:/opt/nussknacker/conf/nussknacker.conf
+
+volumes:
+  storage_designer:
+    name: nussknacker_storage_designer
+  storage_influxdb:
+    name: nussknacker_storage_influxdb
+
+networks:
+  default:
+    name: nussknacker_network

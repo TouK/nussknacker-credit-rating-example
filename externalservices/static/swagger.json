@@ -1,0 +1,226 @@
+{
+  "paths": {
+    "/checklist/{list_type}/{document_id}": {
+      "get": {
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChecklistResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "tags": [
+          "checklist"
+        ],
+        "operationId": "isOnList"
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "list_type",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "allowlist",
+              "blocklist"
+            ]
+          }
+        },
+        {
+          "in": "path",
+          "name": "document_id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "/accis/": {
+      "post": {
+        "responses": {
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccisRequest"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccisRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "accis"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "ScoringServices",
+    "version": "v1"
+  },
+  "tags": [
+    {
+      "name": "checklist",
+      "description": ""
+    },
+    {
+      "name": "accis",
+      "description": ""
+    }
+  ],
+  "openapi": "3.0.2",
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Error code"
+          },
+          "status": {
+            "type": "string",
+            "description": "Error name"
+          },
+          "errors": {
+            "type": "object",
+            "description": "Errors"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          }
+        }
+      },
+      "PaginationMetadata": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "total_pages": {
+            "type": "integer"
+          },
+          "first_page": {
+            "type": "integer"
+          },
+          "last_page": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "previous_page": {
+            "type": "integer"
+          },
+          "next_page": {
+            "type": "integer"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "ChecklistResult": {
+        "type": "object",
+        "properties": {
+          "is_present": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AccisRequest": {
+        "type": "object",
+        "properties": {
+          "doc_id": {
+            "type": "string"
+          },
+          "sur_name": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "responses": {
+      "DEFAULT_ERROR": {
+        "description": "Default error response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "UNPROCESSABLE_ENTITY": {
+        "description": "Unprocessable Entity",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}
