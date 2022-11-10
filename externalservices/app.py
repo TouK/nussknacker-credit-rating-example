@@ -46,9 +46,9 @@ class CheckList(MethodView):
     @list_blp.alt_response(500, schema=ErrorResponseSchema)
     @list_blp.doc(operationId='isOnList')
     def get(self, list_type, document_id):
-        if list_type == "allowlist" and document_id == "102":
+        if list_type == "allowlist" and document_id == "1002":
             return ChecklistResult(True)
-        elif list_type == "blocklist" and document_id == "105":
+        elif list_type == "blocklist" and document_id == "1005":
             return ChecklistResult(True)
         else:
             return ChecklistResult(False)
@@ -73,8 +73,6 @@ class Accis(MethodView):
     @accis_blp.response(201, ScoringResponseSchema)
     @list_blp.doc(operationId='accis')
     def post(self, new_data):
-        #todo
-        print(new_data['name'])
         return Scoring(random.randrange(10))
 
 ceidg_blp = Blueprint('debt-register', 'debt-register', url_prefix='/debt-register')
@@ -84,9 +82,7 @@ class NationalRegisterOfDebt(MethodView):
     @accis_blp.response(201, ScoringResponseSchema)
     @accis_blp.doc(operationId='debt-register')
     def get(self, query_args):
-        #todo
-        print(query_args)
-        return Scoring(random.randrange(10))
+        return Scoring(random.randrange(100))
 
 api.register_blueprint(list_blp)
 api.register_blueprint(accis_blp)

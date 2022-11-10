@@ -1,0 +1,402 @@
+{
+  "metaData" : {
+    "id" : "credit-rating",
+    "typeSpecificData" : {
+      "slug" : "credit-rating",
+      "type" : "RequestResponseMetaData"
+    },
+    "additionalFields" : {
+      "description" : null,
+      "properties" : {
+        "inputSchema" : "{\n    \"type\": \"object\",\n    \"properties\": {\n        \"channel\": {\n            \"type\": \"string\",\n             \"enum\": [\"wwww\", \"stationary\"]\n        },\n        \"transaction_type\": {\n            \"type\": \"string\",\n             \"enum\": [\"new\", \"prolong\", \"mnp\"]\n        },\n        \"document_id\": {\n            \"type\": \"string\",\n            \"example\": \"1002\"\n        },\n        \"first_name\": {\n            \"type\": \"string\",\n            \"example\": \"John\"\n        },\n        \"last_name\": {\n            \"type\": \"string\",\n            \"example\": \"Snow\"\n        }\n    }\n}",
+        "outputSchema" : "{\n    \"type\": \"object\",\n    \"properties\": {\n        \"A\": {\n            \"type\": \"integer\",\n            \"example\": 30\n        },\n        \"B\": {\n            \"type\": \"integer\",\n            \"example\": 44\n        },\n        \"C\": {\n            \"type\": \"integer\",\n            \"example\": 56\n        }\n}}"
+      }
+    },
+    "subprocessVersions" : {
+      
+    }
+  },
+  "nodes" : [
+    {
+      "id" : "request",
+      "ref" : {
+        "typ" : "request",
+        "parameters" : [
+        ]
+      },
+      "additionalFields" : {
+        "description" : null,
+        "layoutData" : {
+          "x" : 181,
+          "y" : 95
+        }
+      },
+      "type" : "Source"
+    },
+    {
+      "id" : "check blocklist",
+      "service" : {
+        "id" : "isOnList",
+        "parameters" : [
+          {
+            "name" : "document_id",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "#input.document_id"
+            }
+          },
+          {
+            "name" : "list_type",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "'blocklist'"
+            }
+          }
+        ]
+      },
+      "output" : "isOnBlocklist",
+      "additionalFields" : {
+        "description" : null,
+        "layoutData" : {
+          "x" : 180,
+          "y" : 227
+        }
+      },
+      "type" : "Enricher"
+    },
+    {
+      "nextFalse" : [
+        {
+          "id" : "check allowlist",
+          "service" : {
+            "id" : "isOnList",
+            "parameters" : [
+              {
+                "name" : "document_id",
+                "expression" : {
+                  "language" : "spel",
+                  "expression" : "#input.document_id"
+                }
+              },
+              {
+                "name" : "list_type",
+                "expression" : {
+                  "language" : "spel",
+                  "expression" : "'allowlist'"
+                }
+              }
+            ]
+          },
+          "output" : "isOnAllowlist",
+          "additionalFields" : {
+            "description" : null,
+            "layoutData" : {
+              "x" : 360,
+              "y" : 540
+            }
+          },
+          "type" : "Enricher"
+        },
+        {
+          "nextFalse" : [
+            {
+              "id" : "accis",
+              "service" : {
+                "id" : "accis",
+                "parameters" : [
+                  {
+                    "name" : "doc_id",
+                    "expression" : {
+                      "language" : "spel",
+                      "expression" : "#input.document_id"
+                    }
+                  },
+                  {
+                    "name" : "name",
+                    "expression" : {
+                      "language" : "spel",
+                      "expression" : "#input.first_name"
+                    }
+                  },
+                  {
+                    "name" : "sur_name",
+                    "expression" : {
+                      "language" : "spel",
+                      "expression" : "#input.last_name"
+                    }
+                  }
+                ]
+              },
+              "output" : "accisFactor",
+              "additionalFields" : {
+                "description" : "scroing in rage 0-10",
+                "layoutData" : {
+                  "x" : 197,
+                  "y" : 824
+                }
+              },
+              "type" : "Enricher"
+            },
+            {
+              "id" : "debt-register",
+              "service" : {
+                "id" : "debt-register",
+                "parameters" : [
+                  {
+                    "name" : "sur_name",
+                    "expression" : {
+                      "language" : "spel",
+                      "expression" : "#input.last_name"
+                    }
+                  },
+                  {
+                    "name" : "doc_id",
+                    "expression" : {
+                      "language" : "spel",
+                      "expression" : "#input.document_id"
+                    }
+                  },
+                  {
+                    "name" : "name",
+                    "expression" : {
+                      "language" : "spel",
+                      "expression" : "#input.first_name"
+                    }
+                  }
+                ]
+              },
+              "output" : "debtRegisterFactor",
+              "additionalFields" : {
+                "description" : "scroing in rage 0-100",
+                "layoutData" : {
+                  "x" : 197,
+                  "y" : 956
+                }
+              },
+              "type" : "Enricher"
+            },
+            {
+              "id" : "prolong factor",
+              "varName" : "prolongFactor",
+              "value" : {
+                "language" : "spel",
+                "expression" : "#input.transaction_type == \"prolong\" ? 100 : 0"
+              },
+              "additionalFields" : {
+                "description" : null,
+                "layoutData" : {
+                  "x" : 197,
+                  "y" : 1084
+                }
+              },
+              "type" : "Variable"
+            },
+            {
+              "id" : "declare bucket factors",
+              "varName" : "butcketFactors",
+              "fields" : [
+                {
+                  "name" : "A",
+                  "expression" : {
+                    "language" : "spel",
+                    "expression" : "15"
+                  }
+                },
+                {
+                  "name" : "B",
+                  "expression" : {
+                    "language" : "spel",
+                    "expression" : "7"
+                  }
+                },
+                {
+                  "name" : "C",
+                  "expression" : {
+                    "language" : "spel",
+                    "expression" : "4"
+                  }
+                }
+              ],
+              "additionalFields" : {
+                "description" : null,
+                "layoutData" : {
+                  "x" : 197,
+                  "y" : 1214
+                }
+              },
+              "type" : "VariableBuilder"
+            },
+            {
+              "id" : "response",
+              "ref" : {
+                "typ" : "response",
+                "parameters" : [
+                  {
+                    "name" : "Raw editor",
+                    "expression" : {
+                      "language" : "spel",
+                      "expression" : "false"
+                    }
+                  },
+                  {
+                    "name" : "A",
+                    "expression" : {
+                      "language" : "spel",
+                      "expression" : "(200 + #prolongFactor + #butcketFactors.A*(#debtRegisterFactor.scoring + 10 * #accisFactor.scoring))/(3+#butcketFactors.A*2)"
+                    }
+                  },
+                  {
+                    "name" : "B",
+                    "expression" : {
+                      "language" : "spel",
+                      "expression" : "(200 + #prolongFactor + #butcketFactors.B*(#debtRegisterFactor.scoring + 10 * #accisFactor.scoring))/(3+#butcketFactors.B*2)"
+                    }
+                  },
+                  {
+                    "name" : "C",
+                    "expression" : {
+                      "language" : "spel",
+                      "expression" : "(200 + #prolongFactor + #butcketFactors.C*(#debtRegisterFactor.scoring + 10 * #accisFactor.scoring))/(3+#butcketFactors.C*2)"
+                    }
+                  }
+                ]
+              },
+              "endResult" : null,
+              "isDisabled" : null,
+              "additionalFields" : {
+                "description" : null,
+                "layoutData" : {
+                  "x" : 197,
+                  "y" : 1344
+                }
+              },
+              "type" : "Sink"
+            }
+          ],
+          "id" : "is on allowlist",
+          "expression" : {
+            "language" : "spel",
+            "expression" : "#isOnAllowlist.is_present"
+          },
+          "isDisabled" : null,
+          "additionalFields" : {
+            "description" : null,
+            "layoutData" : {
+              "x" : 360,
+              "y" : 673
+            }
+          },
+          "type" : "Filter"
+        },
+        {
+          "id" : "high limits",
+          "ref" : {
+            "typ" : "response",
+            "parameters" : [
+              {
+                "name" : "Raw editor",
+                "expression" : {
+                  "language" : "spel",
+                  "expression" : "false"
+                }
+              },
+              {
+                "name" : "A",
+                "expression" : {
+                  "language" : "spel",
+                  "expression" : "100"
+                }
+              },
+              {
+                "name" : "B",
+                "expression" : {
+                  "language" : "spel",
+                  "expression" : "100"
+                }
+              },
+              {
+                "name" : "C",
+                "expression" : {
+                  "language" : "spel",
+                  "expression" : "100"
+                }
+              }
+            ]
+          },
+          "endResult" : null,
+          "isDisabled" : null,
+          "additionalFields" : {
+            "description" : null,
+            "layoutData" : {
+              "x" : 624,
+              "y" : 827
+            }
+          },
+          "type" : "Sink"
+        }
+      ],
+      "id" : "is on blocklist",
+      "expression" : {
+        "language" : "spel",
+        "expression" : "#isOnBlocklist.is_present"
+      },
+      "isDisabled" : null,
+      "additionalFields" : {
+        "description" : null,
+        "layoutData" : {
+          "x" : 180,
+          "y" : 360
+        }
+      },
+      "type" : "Filter"
+    },
+    {
+      "id" : "restrict sales",
+      "ref" : {
+        "typ" : "response",
+        "parameters" : [
+          {
+            "name" : "Raw editor",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "false"
+            }
+          },
+          {
+            "name" : "A",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "0"
+            }
+          },
+          {
+            "name" : "B",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "0"
+            }
+          },
+          {
+            "name" : "C",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "0"
+            }
+          }
+        ]
+      },
+      "endResult" : null,
+      "isDisabled" : null,
+      "additionalFields" : {
+        "description" : null,
+        "layoutData" : {
+          "x" : 0,
+          "y" : 540
+        }
+      },
+      "type" : "Sink"
+    }
+  ],
+  "additionalBranches" : [
+  ]
+}
