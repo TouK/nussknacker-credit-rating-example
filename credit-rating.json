@@ -176,101 +176,136 @@
               "type" : "Enricher"
             },
             {
-              "id" : "prolong factor",
-              "varName" : "prolongFactor",
-              "value" : {
-                "language" : "spel",
-                "expression" : "#input.transaction_type == \"prolong\" ? 100 : 0"
-              },
-              "additionalFields" : {
-                "description" : null,
-                "layoutData" : {
-                  "x" : 197,
-                  "y" : 1084
-                }
-              },
-              "type" : "Variable"
-            },
-            {
-              "id" : "declare bucket factors",
-              "varName" : "butcketFactors",
-              "fields" : [
+              "defaultNext" : [
+              ],
+              "nexts" : [
                 {
-                  "name" : "A",
                   "expression" : {
                     "language" : "spel",
-                    "expression" : "15"
-                  }
+                    "expression" : "#input.transaction_type == \"prolong\""
+                  },
+                  "nodes" : [
+                    {
+                      "id" : "prolong transaction type factor",
+                      "varName" : "transaction_type_factor",
+                      "value" : {
+                        "language" : "spel",
+                        "expression" : "100L"
+                      },
+                      "additionalFields" : {
+                        "description" : null,
+                        "layoutData" : {
+                          "x" : 194,
+                          "y" : 1232
+                        }
+                      },
+                      "type" : "Variable"
+                    },
+                    {
+                      "definition" : {
+                        "id" : "prolong transaction type factor",
+                        "joinId" : "union"
+                      },
+                      "type" : "BranchEndData"
+                    }
+                  ]
                 },
                 {
-                  "name" : "B",
                   "expression" : {
                     "language" : "spel",
-                    "expression" : "7"
-                  }
+                    "expression" : "#input.transaction_type == \"new\""
+                  },
+                  "nodes" : [
+                    {
+                      "id" : "new transaction type factor",
+                      "varName" : "transaction_type_factor",
+                      "value" : {
+                        "language" : "spel",
+                        "expression" : "1L"
+                      },
+                      "additionalFields" : {
+                        "description" : null,
+                        "layoutData" : {
+                          "x" : 693,
+                          "y" : 1233
+                        }
+                      },
+                      "type" : "Variable"
+                    },
+                    {
+                      "definition" : {
+                        "id" : "new transaction type factor",
+                        "joinId" : "union"
+                      },
+                      "type" : "BranchEndData"
+                    }
+                  ]
                 },
                 {
-                  "name" : "C",
                   "expression" : {
                     "language" : "spel",
-                    "expression" : "4"
-                  }
+                    "expression" : "#input.transaction_type == \"mnp\""
+                  },
+                  "nodes" : [
+                    {
+                      "id" : "mnp-scoring",
+                      "service" : {
+                        "id" : "mnp-scoring",
+                        "parameters" : [
+                          {
+                            "name" : "doc_id",
+                            "expression" : {
+                              "language" : "spel",
+                              "expression" : "#input.document_id"
+                            }
+                          },
+                          {
+                            "name" : "sur_name",
+                            "expression" : {
+                              "language" : "spel",
+                              "expression" : "#input.last_name"
+                            }
+                          },
+                          {
+                            "name" : "name",
+                            "expression" : {
+                              "language" : "spel",
+                              "expression" : "#input.first_name"
+                            }
+                          }
+                        ]
+                      },
+                      "output" : "mnpScoring",
+                      "additionalFields" : {
+                        "description" : null,
+                        "layoutData" : {
+                          "x" : -272,
+                          "y" : 1223
+                        }
+                      },
+                      "type" : "Enricher"
+                    },
+                    {
+                      "definition" : {
+                        "id" : "mnp-scoring",
+                        "joinId" : "union"
+                      },
+                      "type" : "BranchEndData"
+                    }
+                  ]
                 }
               ],
+              "id" : "choice",
+              "expression" : null,
+              "exprVal" : null,
               "additionalFields" : {
                 "description" : null,
                 "layoutData" : {
-                  "x" : 197,
-                  "y" : 1214
+                  "x" : 194,
+                  "y" : 1054
                 }
               },
-              "type" : "VariableBuilder"
-            },
-            {
-              "id" : "response",
-              "ref" : {
-                "typ" : "response",
-                "parameters" : [
-                  {
-                    "name" : "Raw editor",
-                    "expression" : {
-                      "language" : "spel",
-                      "expression" : "false"
-                    }
-                  },
-                  {
-                    "name" : "A",
-                    "expression" : {
-                      "language" : "spel",
-                      "expression" : "(200 + #prolongFactor + #butcketFactors.A*(#debtRegisterFactor.scoring + 10 * #accisFactor.scoring))/(3+#butcketFactors.A*2)"
-                    }
-                  },
-                  {
-                    "name" : "B",
-                    "expression" : {
-                      "language" : "spel",
-                      "expression" : "(200 + #prolongFactor + #butcketFactors.B*(#debtRegisterFactor.scoring + 10 * #accisFactor.scoring))/(3+#butcketFactors.B*2)"
-                    }
-                  },
-                  {
-                    "name" : "C",
-                    "expression" : {
-                      "language" : "spel",
-                      "expression" : "(200 + #prolongFactor + #butcketFactors.C*(#debtRegisterFactor.scoring + 10 * #accisFactor.scoring))/(3+#butcketFactors.C*2)"
-                    }
-                  }
-                ]
-              },
-              "endResult" : null,
-              "isDisabled" : null,
-              "additionalFields" : {
-                "description" : null,
-                "layoutData" : {
-                  "x" : 197,
-                  "y" : 1344
-                }
-              },
-              "type" : "Sink"
+              "type" : "Switch"
             }
           ],
           "id" : "is on allowlist",
@@ -398,5 +433,141 @@
     }
   ],
   "additionalBranches" : [
+    [
+      {
+        "id" : "union",
+        "outputVar" : "factors",
+        "nodeType" : "union",
+        "parameters" : [
+        ],
+        "branchParameters" : [
+          {
+            "branchId" : "mnp-scoring",
+            "parameters" : [
+              {
+                "name" : "Output expression",
+                "expression" : {
+                  "language" : "spel",
+                  "expression" : "{\n    debtRegisterFactor: #debtRegisterFactor.scoring,\n    accisFactor: #accisFactor.scoring,\n    transactionTypeFactor: #mnpScoring.scoring\n}"
+                }
+              }
+            ]
+          },
+          {
+            "branchId" : "prolong transaction type factor",
+            "parameters" : [
+              {
+                "name" : "Output expression",
+                "expression" : {
+                  "language" : "spel",
+                  "expression" : "{\n    debtRegisterFactor: #debtRegisterFactor.scoring,\n    accisFactor: #accisFactor.scoring,\n    transactionTypeFactor: #transaction_type_factor\n}"
+                }
+              }
+            ]
+          },
+          {
+            "branchId" : "new transaction type factor",
+            "parameters" : [
+              {
+                "name" : "Output expression",
+                "expression" : {
+                  "language" : "spel",
+                  "expression" : "{\n    debtRegisterFactor: #debtRegisterFactor.scoring,\n    accisFactor: #accisFactor.scoring,\n    transactionTypeFactor: #transaction_type_factor\n}"
+                }
+              }
+            ]
+          }
+        ],
+        "additionalFields" : {
+          "description" : null,
+          "layoutData" : {
+            "x" : 194,
+            "y" : 1376
+          }
+        },
+        "type" : "Join"
+      },
+      {
+        "id" : "declare bucket factors",
+        "varName" : "butcketFactors",
+        "fields" : [
+          {
+            "name" : "A",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "15"
+            }
+          },
+          {
+            "name" : "B",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "7"
+            }
+          },
+          {
+            "name" : "C",
+            "expression" : {
+              "language" : "spel",
+              "expression" : "4"
+            }
+          }
+        ],
+        "additionalFields" : {
+          "description" : null,
+          "layoutData" : {
+            "x" : 194,
+            "y" : 1509
+          }
+        },
+        "type" : "VariableBuilder"
+      },
+      {
+        "id" : "response",
+        "ref" : {
+          "typ" : "response",
+          "parameters" : [
+            {
+              "name" : "Raw editor",
+              "expression" : {
+                "language" : "spel",
+                "expression" : "false"
+              }
+            },
+            {
+              "name" : "A",
+              "expression" : {
+                "language" : "spel",
+                "expression" : "(200 + #factors.transactionTypeFactor + #butcketFactors.A*(#factors.debtRegisterFactor + 10 * #factors.accisFactor))/(3+#butcketFactors.A*2)"
+              }
+            },
+            {
+              "name" : "B",
+              "expression" : {
+                "language" : "spel",
+                "expression" : "(200 + #factors.transactionTypeFactor + #butcketFactors.B*(#factors.debtRegisterFactor + 10 * #factors.accisFactor))/(3+#butcketFactors.B*2)"
+              }
+            },
+            {
+              "name" : "C",
+              "expression" : {
+                "language" : "spel",
+                "expression" : "(200 + #factors.transactionTypeFactor + #butcketFactors.C*(#factors.debtRegisterFactor + 10 * #factors.accisFactor))/(3+#butcketFactors.C*2)"
+              }
+            }
+          ]
+        },
+        "endResult" : null,
+        "isDisabled" : null,
+        "additionalFields" : {
+          "description" : null,
+          "layoutData" : {
+            "x" : 194,
+            "y" : 1652
+          }
+        },
+        "type" : "Sink"
+      }
+    ]
   ]
 }

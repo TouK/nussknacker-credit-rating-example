@@ -84,7 +84,17 @@ class NationalRegisterOfDebt(MethodView):
     def get(self, query_args):
         return Scoring(random.randrange(100))
 
+mnp_blp = Blueprint('mnp-scoring', 'mnp-scoring', url_prefix='/mnp-scoring')
+@mnp_blp.route("/")
+class MnpScoring(MethodView):
+    @ceidg_blp.arguments(ScoringRequestSchema, location="query")
+    @accis_blp.response(201, ScoringResponseSchema)
+    @accis_blp.doc(operationId='mnp-scoring')
+    def get(self, query_args):
+        return Scoring(random.randrange(100))
+
 api.register_blueprint(list_blp)
 api.register_blueprint(accis_blp)
 api.register_blueprint(ceidg_blp)
+api.register_blueprint(mnp_blp)
 
