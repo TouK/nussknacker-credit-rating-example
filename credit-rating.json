@@ -8,7 +8,7 @@
     "additionalFields" : {
       "description" : null,
       "properties" : {
-        "inputSchema" : "{\n    \"type\": \"object\",\n    \"properties\": {\n        \"channel\": {\n            \"type\": \"string\",\n             \"enum\": [\"wwww\", \"stationary\"]\n        },\n        \"transaction_type\": {\n            \"type\": \"string\",\n             \"enum\": [\"new\", \"prolong\", \"mnp\"]\n        },\n        \"document_id\": {\n            \"type\": \"string\",\n            \"example\": \"1002\"\n        },\n        \"first_name\": {\n            \"type\": \"string\",\n            \"example\": \"John\"\n        },\n        \"last_name\": {\n            \"type\": \"string\",\n            \"example\": \"Snow\"\n        }\n    }\n}",
+        "inputSchema" : "{\n    \"type\": \"object\",\n    \"properties\": {\n        \"channel\": {\n            \"type\": \"string\",\n             \"enum\": [\"wwww\", \"stationary\"]\n        },\n        \"transaction_type\": {\n            \"type\": \"string\",\n             \"enum\": [\"new\", \"renewal\", \"mnp\"]\n        },\n        \"document_id\": {\n            \"type\": \"string\",\n            \"example\": \"1002\"\n        },\n        \"first_name\": {\n            \"type\": \"string\",\n            \"example\": \"John\"\n        },\n        \"last_name\": {\n            \"type\": \"string\",\n            \"example\": \"Snow\"\n        }\n    }\n}",
         "outputSchema" : "{\n    \"type\": \"object\",\n    \"properties\": {\n        \"A\": {\n            \"type\": \"integer\",\n            \"example\": 30\n        },\n        \"B\": {\n            \"type\": \"integer\",\n            \"example\": 44\n        },\n        \"C\": {\n            \"type\": \"integer\",\n            \"example\": 56\n        }\n}}"
       }
     },
@@ -27,8 +27,8 @@
       "additionalFields" : {
         "description" : null,
         "layoutData" : {
-          "x" : 181,
-          "y" : 95
+          "x" : 360,
+          "y" : 207
         }
       },
       "type" : "Source"
@@ -58,8 +58,8 @@
       "additionalFields" : {
         "description" : null,
         "layoutData" : {
-          "x" : 180,
-          "y" : 227
+          "x" : 360,
+          "y" : 339
         }
       },
       "type" : "Enricher"
@@ -92,7 +92,7 @@
             "description" : null,
             "layoutData" : {
               "x" : 360,
-              "y" : 540
+              "y" : 643
             }
           },
           "type" : "Enricher"
@@ -131,8 +131,8 @@
               "additionalFields" : {
                 "description" : "scroing in rage 0-10",
                 "layoutData" : {
-                  "x" : 197,
-                  "y" : 824
+                  "x" : 360,
+                  "y" : 966
                 }
               },
               "type" : "Enricher"
@@ -169,8 +169,8 @@
               "additionalFields" : {
                 "description" : "scroing in rage 0-100",
                 "layoutData" : {
-                  "x" : 197,
-                  "y" : 956
+                  "x" : 360,
+                  "y" : 1125
                 }
               },
               "type" : "Enricher"
@@ -186,7 +186,7 @@
                   },
                   "nodes" : [
                     {
-                      "id" : "prolong transaction type factor",
+                      "id" : "renewal transaction type factor",
                       "varName" : "transaction_type_factor",
                       "value" : {
                         "language" : "spel",
@@ -195,15 +195,15 @@
                       "additionalFields" : {
                         "description" : null,
                         "layoutData" : {
-                          "x" : 194,
-                          "y" : 1232
+                          "x" : 798,
+                          "y" : 1437
                         }
                       },
                       "type" : "Variable"
                     },
                     {
                       "definition" : {
-                        "id" : "prolong transaction type factor",
+                        "id" : "renewal transaction type factor",
                         "joinId" : "union"
                       },
                       "type" : "BranchEndData"
@@ -226,8 +226,8 @@
                       "additionalFields" : {
                         "description" : null,
                         "layoutData" : {
-                          "x" : 693,
-                          "y" : 1233
+                          "x" : -76,
+                          "y" : 1438
                         }
                       },
                       "type" : "Variable"
@@ -248,7 +248,7 @@
                   },
                   "nodes" : [
                     {
-                      "id" : "mnp-scoring",
+                      "id" : "mobile number portability transaction factor",
                       "service" : {
                         "id" : "mnp-scoring",
                         "parameters" : [
@@ -277,17 +277,17 @@
                       },
                       "output" : "mnpScoring",
                       "additionalFields" : {
-                        "description" : null,
+                        "description" : "",
                         "layoutData" : {
-                          "x" : -272,
-                          "y" : 1223
+                          "x" : 360,
+                          "y" : 1440
                         }
                       },
                       "type" : "Enricher"
                     },
                     {
                       "definition" : {
-                        "id" : "mnp-scoring",
+                        "id" : "mobile number portability transaction factor",
                         "joinId" : "union"
                       },
                       "type" : "BranchEndData"
@@ -301,8 +301,8 @@
               "additionalFields" : {
                 "description" : null,
                 "layoutData" : {
-                  "x" : 194,
-                  "y" : 1054
+                  "x" : 360,
+                  "y" : 1260
                 }
               },
               "type" : "Switch"
@@ -318,7 +318,7 @@
             "description" : null,
             "layoutData" : {
               "x" : 360,
-              "y" : 673
+              "y" : 778
             }
           },
           "type" : "Filter"
@@ -363,8 +363,8 @@
           "additionalFields" : {
             "description" : null,
             "layoutData" : {
-              "x" : 624,
-              "y" : 827
+              "x" : 784,
+              "y" : 905
             }
           },
           "type" : "Sink"
@@ -379,8 +379,8 @@
       "additionalFields" : {
         "description" : null,
         "layoutData" : {
-          "x" : 180,
-          "y" : 360
+          "x" : 360,
+          "y" : 466
         }
       },
       "type" : "Filter"
@@ -425,8 +425,8 @@
       "additionalFields" : {
         "description" : null,
         "layoutData" : {
-          "x" : 0,
-          "y" : 540
+          "x" : -33,
+          "y" : 612
         }
       },
       "type" : "Sink"
@@ -442,7 +442,7 @@
         ],
         "branchParameters" : [
           {
-            "branchId" : "mnp-scoring",
+            "branchId" : "mobile number portability transaction factor",
             "parameters" : [
               {
                 "name" : "Output expression",
@@ -454,7 +454,7 @@
             ]
           },
           {
-            "branchId" : "prolong transaction type factor",
+            "branchId" : "renewal transaction type factor",
             "parameters" : [
               {
                 "name" : "Output expression",
@@ -481,8 +481,8 @@
         "additionalFields" : {
           "description" : null,
           "layoutData" : {
-            "x" : 194,
-            "y" : 1376
+            "x" : 360,
+            "y" : 1620
           }
         },
         "type" : "Join"
@@ -516,8 +516,8 @@
         "additionalFields" : {
           "description" : null,
           "layoutData" : {
-            "x" : 194,
-            "y" : 1509
+            "x" : 360,
+            "y" : 1748
           }
         },
         "type" : "VariableBuilder"
@@ -562,8 +562,8 @@
         "additionalFields" : {
           "description" : null,
           "layoutData" : {
-            "x" : 194,
-            "y" : 1652
+            "x" : 360,
+            "y" : 1879
           }
         },
         "type" : "Sink"

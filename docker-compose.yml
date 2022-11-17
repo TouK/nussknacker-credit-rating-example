@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   influxdb:
-    container_name: nussknacker_influxdb
+    container_name: nussknacker_credit_rating_example_influxdb
     hostname: influxdb
     image: influxdb:${INFLUXDB_VERSION-1.8.10}
     ports:
@@ -15,7 +15,7 @@ services:
       - storage_influxdb:/var/lib/influxdb
 
   grafana:
-    container_name: nussknacker_grafana
+    container_name: nussknacker_credit_rating_example_grafana
     image: grafana/grafana:${GRAFANA_VERSION-8.4.2}
     volumes:
       - ./grafana:/etc/grafana/provisioning
@@ -28,7 +28,7 @@ services:
       - influxdb
 
   nginx:
-    container_name: nussknacker_nginx
+    container_name: nussknacker_credit_rating_example_nginx
     image: nginx:${NGINX_VERSION-1.17.6}
     ports:
       - "${NGINX_PORT-8081}:80"
@@ -41,14 +41,14 @@ services:
         max_attempts: 6
 
   externalservices:
-    container_name: nussknacker_externalservices
+    container_name: nussknacker_credit_rating_example_externalservices
     build: externalservices
     hostname: externalservices
     ports:
       - "5000:5000"
 
   designer:
-    container_name: nussknacker_designer
+    container_name: nussknacker_credit_rating_example_designer
     image: ${NUSSKNACKER_IMAGE-touk/nussknacker}:${NUSSKNACKER_VERSION-1.6.1}
     ports:
       - "3081:8080"
@@ -61,17 +61,17 @@ services:
       DEFAULT_SCENARIO_TYPE: request-response-embedded
       INFLUXDB_URL: http://influxdb:8086
       OPENAPI_SERVICE_URL: http://externalservices:5000
-      USAGE_REPORTS_FINGERPRINT: "credit-scoring-blog-example"
+      USAGE_REPORTS_FINGERPRINT: "credit-rating-blog-example"
     volumes:
       - storage_designer:/opt/nussknacker/storage
       - ./nussknacker/nussknacker.conf:/opt/nussknacker/conf/nussknacker.conf
 
 volumes:
   storage_designer:
-    name: nussknacker_storage_designer
+    name: nussknacker_credit_rating_example_storage_designer
   storage_influxdb:
-    name: nussknacker_storage_influxdb
+    name: nussknacker_credit_rating_example_storage_influxdb
 
 networks:
   default:
-    name: nussknacker_network
+    name: nussknacker_credit_rating_example_network
